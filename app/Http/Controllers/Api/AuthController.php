@@ -67,25 +67,32 @@ class AuthController extends Controller
     $credentials = $request->only('email', 'password');
 
     if ($token = $this->guard()->attempt($credentials)) {
-        return $this->respondWithToken($token);
+        return $this->respondWithToken($credentials,$token);
     }
 
-    return response()->json(['error' => 'Unauthorized'], 401);
+    return response()->json([
+        'error' => 'Unauthorized'], 401);
    }
 
 
-   protected function respondWithToken($token)
+   protected function respondWithToken($credentials,$token)
    {
        return response()->json([
+            'data' => $credentials,
            'access_token' => $token,
            'token_type' => 'bearer',
            'expires_in' => $this->guard()->factory()->getTTL() * 60
        ]);
    }
-   
+
    public function guard()
    {
        return Auth::guard();
    }
    
+   public function profile(){
+    return response()->json(Auth::user());
+   }
+  
+
 }
